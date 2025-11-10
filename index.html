@@ -782,6 +782,7 @@
             email: "",
             address: ""
         };
+        let currentVoucherData = null;
 
         // Generate circular text watermarks with clear, readable text
         function generateCircularTextWatermarks(containerId) {
@@ -914,23 +915,29 @@
             // Generate a unique voucher ID
             const voucherId = 'RTW-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
             
-            // Create QR code data - this will be the voucher data
-            const qrData = JSON.stringify({
+            // Create voucher data object
+            currentVoucherData = {
                 voucherId: voucherId,
                 userName: userData.fullName,
                 userPhone: userData.phoneNumber,
+                userEmail: userData.email,
+                userAddress: userData.address,
                 bottles: bottleCount,
                 type: plasticType,
                 total: bottleCount * pricePerBottle,
-                timestamp: new Date().toISOString()
-            });
+                timestamp: new Date().toISOString(),
+                action: 'showVoucher' // This tells the system to show the voucher page
+            };
+            
+            // Create URL that will trigger voucher display
+            const voucherUrl = `${window.location.origin}${window.location.pathname}?voucher=${encodeURIComponent(JSON.stringify(currentVoucherData))}`;
             
             try {
                 // Generate QR code using the qrcode-generator library
                 const typeNumber = 0; // Auto type
                 const errorCorrectionLevel = 'L'; // Low error correction
                 const qr = qrcode(typeNumber, errorCorrectionLevel);
-                qr.addData(qrData);
+                qr.addData(voucherUrl);
                 qr.make();
                 
                 // Create the QR code as an HTML table
@@ -1055,6 +1062,35 @@
             return true;
         }
 
+        // Check URL for voucher parameter on page load
+        function checkForVoucherInURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const voucherParam = urlParams.get('voucher');
+            
+            if (voucherParam) {
+                try {
+                    const voucherData = JSON.parse(decodeURIComponent(voucherParam));
+                    if (voucherData.action === 'showVoucher') {
+                        // Set the global data from the URL parameters
+                        userData = {
+                            fullName: voucherData.userName,
+                            phoneNumber: voucherData.userPhone,
+                            email: voucherData.userEmail,
+                            address: voucherData.userAddress
+                        };
+                        bottleCount = voucherData.bottles;
+                        plasticType = voucherData.type;
+                        
+                        // Show the voucher page directly
+                        showPage('page5');
+                        generateVoucher();
+                    }
+                } catch (error) {
+                    console.error('Error parsing voucher data from URL:', error);
+                }
+            }
+        }
+
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
             // Generate watermarks for all pages
@@ -1063,6 +1099,9 @@
             generateCircularTextWatermarks('watermarkContainer3');
             generateCircularTextWatermarks('watermarkContainer4');
             generateCircularTextWatermarks('watermarkContainer5');
+            
+            // Check if we should show voucher page directly from URL
+            checkForVoucherInURL();
             
             // Page 1: Welcome page with dialog
             document.getElementById('getStartedBtn').addEventListener('click', function() {
