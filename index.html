@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recycle To Wealth</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -700,7 +700,7 @@
             
             <div>
                 <button class="back-btn" id="backBtn4">Back</button>
-                <button class="next-btn" id="simulateScanBtn">Simulate Scan</button>
+                <button class="next-btn" id="simulateScanBtn">Get Voucher</button>
             </div>
         </div>
     </div>
@@ -906,7 +906,7 @@
             }
         }
 
-        // Generate QR code
+        // Generate QR code using qrcode-generator library
         function generateQRCode() {
             const qrCodeElement = document.getElementById('qrCode');
             qrCodeElement.innerHTML = '';
@@ -925,24 +925,42 @@
                 timestamp: new Date().toISOString()
             });
             
-            // Generate QR code using the library
-            QRCode.toCanvas(qrData, { 
-                width: 180, 
-                margin: 1,
-                color: {
-                    dark: '#2c5530',
-                    light: '#ffffff'
-                }
-            }, function(err, canvas) {
-                if (err) {
-                    console.error('QR Code generation error:', err);
-                    qrCodeElement.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">QR Code Error</div>';
-                    return;
-                }
+            try {
+                // Generate QR code using the qrcode-generator library
+                const typeNumber = 0; // Auto type
+                const errorCorrectionLevel = 'L'; // Low error correction
+                const qr = qrcode(typeNumber, errorCorrectionLevel);
+                qr.addData(qrData);
+                qr.make();
                 
-                // Add the canvas to the QR code element
-                qrCodeElement.appendChild(canvas);
-            });
+                // Create the QR code as an HTML table
+                const qrHtml = qr.createImgTag(4, 0); // 4px cell size, no margin
+                qrCodeElement.innerHTML = qrHtml;
+                
+                // Style the QR code image
+                const qrImage = qrCodeElement.querySelector('img');
+                if (qrImage) {
+                    qrImage.style.width = '180px';
+                    qrImage.style.height = '180px';
+                    qrImage.style.display = 'block';
+                    qrImage.style.margin = '0 auto';
+                }
+            } catch (error) {
+                console.error('QR Code generation error:', error);
+                // Fallback: Create a simple visual representation
+                qrCodeElement.innerHTML = `
+                    <div style="text-align: center; padding: 20px; background: white;">
+                        <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #2c5530;">RECYCLE TO WEALTH</div>
+                        <div style="width: 150px; height: 150px; background: repeating-linear-gradient(0deg, #000, #000 2px, #fff 2px, #fff 4px), repeating-linear-gradient(90deg, #000, #000 2px, #fff 2px, #fff 4px); margin: 0 auto; display: flex; justify-content: center; align-items: center;">
+                            <div style="text-align: center; background: white; padding: 10px;">
+                                <div style="font-size: 10px; margin-bottom: 5px;">QR CODE</div>
+                                <div style="font-size: 8px;">Voucher: ${voucherId}</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 12px; margin-top: 10px; color: #666;">Scan for Voucher</div>
+                    </div>
+                `;
+            }
         }
 
         // Generate voucher details
