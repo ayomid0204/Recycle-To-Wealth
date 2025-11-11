@@ -1,252 +1,1491 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Site Under Maintenance</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: "Poppins", sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recycle To Wealth</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-      background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #0f2027);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      text-align: center;
-      overflow: hidden;
-    }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4efe9 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+            padding: 20px;
+        }
 
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
+        .page {
+            display: none;
+            width: 100%;
+            min-height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 20px;
+        }
 
-    h1 {
-      font-size: 3em;
-      margin-bottom: 0.3em;
-      color: #ffcc00;
-      text-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
-      animation: fadeIn 2s ease;
-    }
+        .active-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
 
-    p {
-      font-size: 1.2em;
-      max-width: 600px;
-      margin-bottom: 1.5em;
-      color: #ccc;
-      animation: fadeIn 2s ease 0.5s both;
-    }
+        .watermark-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
 
-    .gears {
-      position: relative;
-      width: 150px;
-      height: 150px;
-      margin-bottom: 1em;
-      animation: fadeIn 1.5s ease;
-    }
+        .circular-watermark {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: rotate 30s infinite linear;
+        }
 
-    .gear {
-      position: absolute;
-      width: 100px;
-      height: 100px;
-      border: 6px solid #ffcc00;
-      border-radius: 50%;
-      animation: spin 6s linear infinite;
-    }
+        .circular-watermark.large {
+            width: 300px;
+            height: 300px;
+            animation-duration: 40s;
+        }
 
-    .gear::before {
-      content: "";
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 15px;
-      height: 15px;
-      background: #ffcc00;
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-    }
+        .circular-watermark.medium {
+            width: 200px;
+            height: 200px;
+            animation-duration: 25s;
+        }
 
-    .gear2 {
-      top: 40px;
-      left: 80px;
-      width: 70px;
-      height: 70px;
-      animation: spinReverse 4s linear infinite;
-    }
+        .circular-watermark.small {
+            width: 150px;
+            height: 150px;
+            animation-duration: 20s;
+        }
 
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
+        .circular-watermark.xsmall {
+            width: 100px;
+            height: 100px;
+            animation-duration: 15s;
+        }
 
-    @keyframes spinReverse {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(-360deg); }
-    }
+        .circular-watermark.reverse {
+            animation-direction: reverse;
+        }
 
-    .countdown {
-      font-size: 1.5em;
-      margin: 1.5em 0;
-      font-weight: bold;
-      color: #fff;
-      text-shadow: 0 0 10px rgba(255,255,255,0.3);
-    }
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
 
-    .progress-container {
-      width: 80%;
-      max-width: 400px;
-      height: 12px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 6px;
-      overflow: hidden;
-      margin-top: 1em;
-    }
+        .watermark-text {
+            position: absolute;
+            color: rgba(100, 100, 100, 0.25);
+            font-weight: 700;
+            text-transform: uppercase;
+            white-space: nowrap;
+            transform-origin: center;
+        }
 
-    .progress-bar {
-      width: 0%;
-      height: 100%;
-      background: linear-gradient(90deg, #ffcc00, #ff9900);
-      border-radius: 6px;
-      transition: width 0.5s ease;
-    }
+        .circular-watermark.large .watermark-text {
+            font-size: 16px;
+        }
 
-    .floating-icons span {
-      position: absolute;
-      color: rgba(255,255,255,0.15);
-      font-size: 2em;
-      animation: floatIcons 10s linear infinite;
-    }
+        .circular-watermark.medium .watermark-text {
+            font-size: 14px;
+        }
 
-    @keyframes floatIcons {
-      from {
-        transform: translateY(100vh) rotate(0deg);
-        opacity: 0;
-      }
-      25% { opacity: 1; }
-      to {
-        transform: translateY(-10vh) rotate(360deg);
-        opacity: 0;
-      }
-    }
+        .circular-watermark.small .watermark-text {
+            font-size: 12px;
+        }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+        .circular-watermark.xsmall .watermark-text {
+            font-size: 10px;
+        }
 
-    footer {
-      position: absolute;
-      bottom: 15px;
-      font-size: 0.9em;
-      color: #aaa;
-    }
+        .main-content {
+            text-align: center;
+            z-index: 2;
+            position: relative;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 50px 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            max-width: 90%;
+            width: 500px;
+            backdrop-filter: blur(5px);
+            margin: 20px 0;
+        }
 
-    .message {
-      font-size: 1em;
-      margin-top: 1.5em;
-      color: #ffcc00;
-      font-style: italic;
-      animation: fadeIn 1s ease;
-    }
-  </style>
+        .welcome-text {
+            font-size: 3.5em;
+            color: #2c5530;
+            margin-bottom: 20px;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-subtext {
+            font-size: 1.2em;
+            color: #5a7d5e;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .get-started-btn, .finish-btn, .download-btn, .back-btn, .next-btn {
+            background: linear-gradient(to right, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 16px 45px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+            margin: 10px;
+            display: inline-block;
+        }
+
+        .back-btn {
+            background: linear-gradient(to right, #6c757d, #5a6268);
+        }
+
+        .get-started-btn:hover, .finish-btn:hover, .download-btn:hover, .next-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(108, 117, 125, 0.4);
+        }
+
+        .get-started-btn:active, .finish-btn:active, .download-btn:active, .back-btn:active, .next-btn:active {
+            transform: translateY(-2px);
+        }
+
+        .dialog-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+        }
+
+        .dialog-box {
+            background-color: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 90%;
+            width: 450px;
+            animation: fadeIn 0.4s ease;
+            position: relative;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .dialog-title {
+            font-size: 1.8em;
+            color: #2c5530;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .dialog-message {
+            margin-bottom: 30px;
+            line-height: 1.7;
+            color: #555;
+            font-size: 1.1em;
+        }
+
+        .close-btn {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+            font-weight: 600;
+        }
+
+        .close-btn:hover {
+            background-color: #5a6268;
+        }
+
+        .recycle-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: #4CAF50;
+        }
+
+        /* Biodata Form Styles */
+        .form-container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c5530;
+            font-size: 1.1em;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+        /* Page 3 Styles */
+        .input-section {
+            margin: 30px 0;
+        }
+
+        .input-label {
+            font-size: 1.5em;
+            color: #2c5530;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .number-input {
+            width: 200px;
+            padding: 15px;
+            font-size: 1.5em;
+            text-align: center;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .bottle-counter {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .counter-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .counter-value {
+            margin: 0 20px;
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c5530;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .bottle-types {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .bottle-type {
+            padding: 10px 20px;
+            background: #f0f7f0;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .bottle-type.active {
+            background: #4CAF50;
+            color: white;
+            border-color: #2c5530;
+        }
+
+        /* Page 4 Styles */
+        .qr-code-container {
+            margin: 30px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .qr-code:hover {
+            transform: scale(1.05);
+        }
+
+        .qr-instructions {
+            margin-top: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        /* Page 5 Styles */
+        .voucher {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            max-width: 90%;
+            width: 400px;
+            text-align: center;
+            border: 2px dashed #4CAF50;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .voucher::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(to right, #4CAF50, #45a049, #2c5530);
+        }
+
+        .voucher-title {
+            font-size: 2em;
+            color: #2c5530;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .voucher-details {
+            text-align: left;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+
+        .voucher-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .voucher-label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .voucher-value {
+            color: #2c5530;
+            font-weight: 600;
+        }
+
+        .voucher-total {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c5530;
+            margin: 20px 0;
+            padding-top: 20px;
+            border-top: 2px solid #4CAF50;
+        }
+
+        .environment-impact {
+            background: #f0f7f0;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .impact-title {
+            font-weight: bold;
+            color: #2c5530;
+            margin-bottom: 10px;
+        }
+
+        .impact-value {
+            font-size: 1.2em;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .user-info {
+            background: #f0f7f0;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        /* New Features */
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: #f0f7f0;
+            border-radius: 10px;
+            margin: 10px;
+            min-width: 120px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c5530;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #5a7d5e;
+            margin-top: 5px;
+        }
+
+        .rewards-section {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .rewards-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .rewards-points {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .timer-container {
+            background: #2c5530;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .timer-text {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .timer {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .share-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .share-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .share-whatsapp {
+            background: #25D366;
+            color: white;
+        }
+
+        .share-facebook {
+            background: #3b5998;
+            color: white;
+        }
+
+        .share-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .success-animation {
+            animation: successPulse 2s ease-in-out;
+        }
+
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .eco-badges {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .eco-badge {
+            background: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin: 20px 0;
+            height: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #4CAF50;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .welcome-text {
+                font-size: 2.8em;
+            }
+            
+            .circular-watermark.large {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .circular-watermark.medium {
+                width: 170px;
+                height: 170px;
+            }
+            
+            .circular-watermark.small {
+                width: 130px;
+                height: 130px;
+            }
+            
+            .circular-watermark.xsmall {
+                width: 90px;
+                height: 90px;
+            }
+            
+            .circular-watermark.large .watermark-text {
+                font-size: 14px;
+            }
+            
+            .main-content {
+                padding: 40px 25px;
+            }
+            
+            .voucher {
+                width: 90%;
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .welcome-text {
+                font-size: 2.2em;
+            }
+            
+            .get-started-btn, .finish-btn, .download-btn, .back-btn, .next-btn {
+                padding: 14px 35px;
+                font-size: 1.1em;
+            }
+            
+            .circular-watermark.large {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .circular-watermark.large .watermark-text {
+                font-size: 12px;
+            }
+            
+            .number-input {
+                width: 150px;
+                font-size: 1.2em;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="gears">
-    <div class="gear"></div>
-    <div class="gear gear2"></div>
-  </div>
+    <!-- Page 1: Welcome Page -->
+    <div id="page1" class="page active-page">
+        <!-- Watermark Container -->
+        <div class="watermark-container" id="watermarkContainer"></div>
 
-  <h1>Site Under Maintenance</h1>
-  <p>We’re currently performing essential upgrades to serve you better. Please check back later!</p>
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="recycle-icon">♻️</div>
+            <div class="welcome-text">Welcome</div>
+            <div class="welcome-subtext">Join us in transforming recycling into sustainable wealth for our planet and communities</div>
+            <button class="get-started-btn" id="getStartedBtn">Get Started</button>
+        </div>
 
-  <div class="countdown" id="countdown">Loading countdown...</div>
+        <!-- Dialog Box -->
+        <div class="dialog-overlay" id="dialogOverlay">
+            <div class="dialog-box">
+                <div class="dialog-title">Welcome to Recycle To Wealth!</div>
+                <div class="dialog-message">
+                    Thank you for joining our mission to create a sustainable future. 
+                    Together, we can transform recycling into wealth for our communities 
+                    and protect our planet for generations to come.
+                </div>
+                <button class="close-btn" id="closeDialogBtn">Let's Begin</button>
+            </div>
+        </div>
+    </div>
 
-  <div class="progress-container">
-    <div class="progress-bar" id="progress-bar"></div>
-  </div>
+    <!-- Page 2: Biodata Collection -->
+    <div id="page2" class="page">
+        <div class="watermark-container" id="watermarkContainer2"></div>
+        <div class="main-content">
+            <div class="recycle-icon">♻️</div>
+            <div class="welcome-text">Your Information</div>
+            <div class="welcome-subtext">Please provide your details for the recycling voucher</div>
+            
+            <div class="form-container">
+                <div class="form-group">
+                    <label class="form-label" for="fullName">Full Name</label>
+                    <input type="text" id="fullName" class="form-input" placeholder="Enter your full name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="phoneNumber">Phone Number</label>
+                    <input type="tel" id="phoneNumber" class="form-input" placeholder="Enter your phone number" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address</label>
+                    <input type="email" id="email" class="form-input" placeholder="Enter your email address">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="address">Address</label>
+                    <textarea id="address" class="form-input" rows="3" placeholder="Enter your full address" required></textarea>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <div>
+                <button class="back-btn" id="backBtn2">Back</button>
+                <button class="next-btn" id="nextBtn2">Next</button>
+            </div>
+        </div>
+    </div>
 
-  <div class="message" id="message">Optimizing our servers...</div>
+    <!-- Page 3: Bottle Input Page -->
+    <div id="page3" class="page">
+        <div class="watermark-container" id="watermarkContainer3"></div>
+        <div class="main-content">
+            <div class="recycle-icon">♻️</div>
+            <div class="welcome-text">Recycle Your Bottles</div>
+            
+            <div class="input-section">
+                <label for="bottleCount" class="input-label">How many plastic bottles do you want to recycle?</label>
+                
+                <div class="bottle-counter">
+                    <button class="counter-btn" id="decreaseBtn">-</button>
+                    <div class="counter-value" id="counterValue">1</div>
+                    <button class="counter-btn" id="increaseBtn">+</button>
+                </div>
+                
+                <input type="number" id="bottleCount" class="number-input" min="1" max="1000" value="1" style="display: none;">
+                
+                <div class="bottle-types">
+                    <div class="bottle-type active" data-type="PET">PET Bottles</div>
+                    <div class="bottle-type" data-type="HDPE">HDPE Containers</div>
+                    <div class="bottle-type" data-type="Other">Other Plastics</div>
+                </div>
+            </div>
 
-  <div class="floating-icons" id="floating-icons"></div>
+            <!-- Environmental Stats -->
+            <div class="stats-container">
+                <div class="stat-item">
+                    <div class="stat-value" id="co2Preview">0.15</div>
+                    <div class="stat-label">kg CO₂ Saved</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="energyPreview">5</div>
+                    <div class="stat-label">kWh Energy</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="moneyPreview">₦20</div>
+                    <div class="stat-label">Earnings</div>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar3"></div>
+            </div>
+            
+            <div>
+                <button class="back-btn" id="backBtn3">Back</button>
+                <button class="next-btn" id="nextBtn3">Generate QR</button>
+            </div>
+        </div>
+    </div>
 
-  <footer>© 2025 Your Company. All rights reserved.</footer>
+    <!-- Page 4: QR Code Page -->
+    <div id="page4" class="page">
+        <div class="watermark-container" id="watermarkContainer4"></div>
+        <div class="main-content">
+            <div class="recycle-icon">♻️</div>
+            <div class="welcome-text">Your QR Code is Ready!</div>
+            <div class="welcome-subtext">Scan this QR code at any Recycle To Wealth center to claim your voucher</div>
+            
+            <div class="qr-code-container">
+                <div class="qr-code" id="qrCode">
+                    <!-- QR Code will be generated here -->
+                </div>
+                <div class="qr-instructions">
+                    Click the QR code to view your voucher
+                </div>
+            </div>
 
-  <script>
-    // COUNTDOWN TIMER: 100 days
-    const countdownElement = document.getElementById("countdown");
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + 100);
+            <!-- Rewards Section -->
+            <div class="rewards-section">
+                <div class="rewards-title">You've Earned Recycling Points!</div>
+                <div class="rewards-points" id="rewardsPoints">+50 Points</div>
+                <div>Keep recycling to unlock special rewards and discounts</div>
+            </div>
 
-    const progressBar = document.getElementById("progress-bar");
-    const startDate = new Date().getTime();
-    const totalTime = targetDate.getTime() - startDate;
+            <!-- Timer for QR Validity -->
+            <div class="timer-container">
+                <div class="timer-text">QR Code Valid for:</div>
+                <div class="timer" id="qrTimer">30:00</div>
+            </div>
+            
+            <div>
+                <button class="back-btn" id="backBtn4">Back</button>
+                <button class="download-btn" id="downloadQRBtn">Download QR</button>
+            </div>
+        </div>
+    </div>
 
-    const timer = setInterval(() => {
-      const now = new Date().getTime();
-      const distance = targetDate - now;
+    <!-- Page 5: Voucher Page -->
+    <div id="page5" class="page">
+        <div class="watermark-container" id="watermarkContainer5"></div>
+        <div class="main-content">
+            <div class="voucher" id="voucherContent">
+                <div class="recycle-icon">♻️</div>
+                <div class="voucher-title">Recycling Voucher</div>
+                
+                <!-- Eco Badges -->
+                <div class="eco-badges">
+                    <div class="eco-badge">Eco Warrior</div>
+                    <div class="eco-badge">Plastic Hero</div>
+                    <div class="eco-badge">Green Champion</div>
+                </div>
+                
+                <div class="user-info">
+                    <div class="voucher-row">
+                        <span class="voucher-label">Name:</span>
+                        <span class="voucher-value" id="userName">-</span>
+                    </div>
+                    <div class="voucher-row">
+                        <span class="voucher-label">Phone:</span>
+                        <span class="voucher-value" id="userPhone">-</span>
+                    </div>
+                    <div class="voucher-row">
+                        <span class="voucher-label">Email:</span>
+                        <span class="voucher-value" id="userEmail">-</span>
+                    </div>
+                    <div class="voucher-row">
+                        <span class="voucher-label">Address:</span>
+                        <span class="voucher-value" id="userAddress">-</span>
+                    </div>
+                </div>
+                
+                <div class="voucher-details">
+                    <div class="voucher-row">
+                        <span class="voucher-label">Voucher ID:</span>
+                        <span class="voucher-value" id="voucherId">RTW-2023-001</span>
+                    </div>
+                    <div class="voucher-row">
+                        <span class="voucher-label">Date:</span>
+                        <span class="voucher-value" id="voucherDate">Loading...</span>
+                    </div>
+                    <div class="voucher-row">
+                        <span class="voucher-label">Bottles Recycled:</span>
+                        <span class="voucher-value" id="bottlesRecycled">0</span>
+                    </div>
+                    <div class="voucher-row">
+                        <span class="voucher-label">Plastic Type:</span>
+                        <span class="voucher-value" id="plasticType">PET</span>
+                    </div>
+                    <div class="voucher-row">
+                        <span class="voucher-label">Price per Bottle:</span>
+                        <span class="voucher-value">₦20</span>
+                    </div>
+                </div>
+                
+                <div class="voucher-total" id="voucherTotal">Total: ₦0</div>
+                
+                <div class="environment-impact">
+                    <div class="impact-title">Environmental Impact</div>
+                    <div class="impact-value" id="co2Saved">CO₂ Saved: 0 kg</div>
+                    <div class="impact-value" id="energySaved">Energy Saved: 0 kWh</div>
+                </div>
 
-      if (distance <= 0) {
-        clearInterval(timer);
-        countdownElement.innerHTML = "We’re back online!";
-        progressBar.style.width = "100%";
-        return;
-      }
+                <!-- Share Buttons -->
+                <div class="share-buttons">
+                    <button class="share-btn share-whatsapp" onclick="shareOnWhatsApp()">
+                        <i class="fab fa-whatsapp"></i> Share on WhatsApp
+                    </button>
+                    <button class="share-btn share-facebook" onclick="shareOnFacebook()">
+                        <i class="fab fa-facebook"></i> Share on Facebook
+                    </button>
+                </div>
+            </div>
+            
+            <div>
+                <button class="back-btn" id="backBtn5">Back</button>
+                <button class="download-btn" id="downloadBtn">Download Voucher</button>
+            </div>
+        </div>
+    </div>
 
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    <script>
+        // Global variables
+        let bottleCount = 1;
+        let plasticType = "PET";
+        const pricePerBottle = 20; // 20 Naira per bottle
+        let userData = {
+            fullName: "",
+            phoneNumber: "",
+            email: "",
+            address: ""
+        };
+        let qrTimer;
+        let timeLeft = 30 * 60; // 30 minutes in seconds
 
-      countdownElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        // Generate circular text watermarks with clear, readable text
+        function generateCircularTextWatermarks(containerId) {
+            const container = document.getElementById(containerId);
+            const text = "RECYCLE TO WEALTH";
 
-      const progress = ((totalTime - distance) / totalTime) * 100;
-      progressBar.style.width = progress.toFixed(2) + "%";
-    }, 1000);
+            // Create large center watermark
+            const centerWatermark = createWatermark('large', 300, 16);
+            centerWatermark.style.top = '50%';
+            centerWatermark.style.left = '50%';
+            centerWatermark.style.transform = 'translate(-50%, -50%)';
+            container.appendChild(centerWatermark);
 
-    // FLOATING ICONS
-    const icons = ["⚙️", "🔧", "💡", "💻", "🧩", "🔋"];
-    const floatingContainer = document.getElementById("floating-icons");
+            // Create other watermarks in circular pattern
+            const positions = [
+                { top: '10%', left: '10%', size: 'medium' },
+                { top: '10%', left: '80%', size: 'medium' },
+                { top: '80%', left: '10%', size: 'medium' },
+                { top: '80%', left: '80%', size: 'medium' },
+                { top: '20%', left: '30%', size: 'small' },
+                { top: '20%', left: '60%', size: 'small' },
+                { top: '60%', left: '30%', size: 'small' },
+                { top: '60%', left: '60%', size: 'small' },
+                { top: '10%', left: '50%', size: 'xsmall' },
+                { top: '90%', left: '50%', size: 'xsmall' },
+                { top: '50%', left: '10%', size: 'xsmall' },
+                { top: '50%', left: '90%', size: 'xsmall' }
+            ];
 
-    setInterval(() => {
-      const icon = document.createElement("span");
-      icon.textContent = icons[Math.floor(Math.random() * icons.length)];
-      icon.style.left = Math.random() * 100 + "vw";
-      icon.style.animationDuration = (8 + Math.random() * 4) + "s";
-      floatingContainer.appendChild(icon);
+            positions.forEach(position => {
+                const watermark = createWatermark(position.size, 
+                    position.size === 'medium' ? 200 : 
+                    position.size === 'small' ? 150 : 100,
+                    position.size === 'medium' ? 14 : 
+                    position.size === 'small' ? 12 : 10);
+                
+                watermark.style.top = position.top;
+                watermark.style.left = position.left;
+                
+                if (Math.random() > 0.5) {
+                    watermark.classList.add('reverse');
+                }
+                
+                // Random animation duration
+                const duration = 20 + Math.random() * 25;
+                watermark.style.animationDuration = `${duration}s`;
+                
+                container.appendChild(watermark);
+            });
+        }
 
-      setTimeout(() => {
-        icon.remove();
-      }, 10000);
-    }, 800);
+        // Create individual watermark with circular text
+        function createWatermark(sizeClass, size, fontSize) {
+            const watermark = document.createElement('div');
+            watermark.className = `circular-watermark ${sizeClass}`;
+            
+            // Create text elements arranged in a circle
+            const text = "RECYCLE TO WEALTH";
+            const characters = text.split('');
+            const radius = size / 2 - 20;
+            
+            characters.forEach((char, index) => {
+                const textElement = document.createElement('div');
+                textElement.className = 'watermark-text';
+                textElement.textContent = char;
+                textElement.style.fontSize = `${fontSize}px`;
+                
+                // Calculate position around the circle
+                const angle = (index / characters.length) * 360;
+                const radian = (angle * Math.PI) / 180;
+                
+                const x = Math.cos(radian) * radius;
+                const y = Math.sin(radian) * radius;
+                
+                textElement.style.transform = `translate(${x}px, ${y}px) rotate(${angle + 90}deg)`;
+                
+                watermark.appendChild(textElement);
+            });
+            
+            return watermark;
+        }
 
-    // ROTATING STATUS MESSAGES
-    const messages = [
-      "Optimizing our servers...",
-      "Upgrading databases...",
-      "Enhancing user experience...",
-      "Installing updates...",
-      "Cleaning up old files...",
-      "Securing connections..."
-    ];
+        // Page navigation functions
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active-page');
+            });
+            
+            // Show the requested page
+            document.getElementById(pageId).classList.add('active-page');
+            
+            // Update progress bar
+            updateProgressBar(pageId);
+        }
 
-    const messageElement = document.getElementById("message");
-    let msgIndex = 0;
+        // Update progress bar based on current page
+        function updateProgressBar(pageId) {
+            const progressBar = document.getElementById('progressBar');
+            let progress = 0;
+            
+            switch(pageId) {
+                case 'page1':
+                    progress = 0;
+                    break;
+                case 'page2':
+                    progress = 20;
+                    break;
+                case 'page3':
+                    progress = 40;
+                    break;
+                case 'page4':
+                    progress = 60;
+                    break;
+                case 'page5':
+                    progress = 100;
+                    break;
+            }
+            
+            if (progressBar) {
+                progressBar.style.width = `${progress}%`;
+            }
+        }
 
-    setInterval(() => {
-      msgIndex = (msgIndex + 1) % messages.length;
-      messageElement.textContent = messages[msgIndex];
-    }, 4000);
-  </script>
+        // Generate QR code using qrcode-generator library
+        function generateQRCode() {
+            const qrCodeElement = document.getElementById('qrCode');
+            qrCodeElement.innerHTML = '';
+            
+            // Generate a unique voucher ID
+            const voucherId = 'RTW-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
+            
+            // Create voucher data object with ALL data
+            const voucherData = {
+                voucherId: voucherId,
+                userName: userData.fullName,
+                userPhone: userData.phoneNumber,
+                userEmail: userData.email,
+                userAddress: userData.address,
+                bottles: bottleCount,
+                type: plasticType,
+                total: bottleCount * pricePerBottle,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Store ALL data in localStorage
+            localStorage.setItem('recycleVoucherData', JSON.stringify(voucherData));
+            
+            // Create URL that will trigger voucher display
+            const voucherUrl = window.location.href.split('?')[0] + '?voucher=' + voucherId;
+            
+            try {
+                // Generate QR code using the qrcode-generator library
+                const typeNumber = 0; // Auto type
+                const errorCorrectionLevel = 'L'; // Low error correction
+                const qr = qrcode(typeNumber, errorCorrectionLevel);
+                qr.addData(voucherUrl);
+                qr.make();
+                
+                // Create the QR code as an HTML table
+                const qrHtml = qr.createImgTag(4, 0); // 4px cell size, no margin
+                qrCodeElement.innerHTML = qrHtml;
+                
+                // Style the QR code image
+                const qrImage = qrCodeElement.querySelector('img');
+                if (qrImage) {
+                    qrImage.style.width = '180px';
+                    qrImage.style.height = '180px';
+                    qrImage.style.display = 'block';
+                    qrImage.style.margin = '0 auto';
+                    qrImage.style.cursor = 'pointer';
+                    
+                    // Add click event to QR code to navigate to voucher page
+                    qrImage.addEventListener('click', function() {
+                        showPage('page5');
+                        generateVoucher();
+                        createConfetti();
+                    });
+                }
+                
+                // Start QR code timer
+                startQRTimer();
+                
+            } catch (error) {
+                console.error('QR Code generation error:', error);
+                // Fallback: Create a simple visual representation
+                qrCodeElement.innerHTML = `
+                    <div style="text-align: center; padding: 20px; background: white; cursor: pointer;" id="fallbackQR">
+                        <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #2c5530;">RECYCLE TO WEALTH</div>
+                        <div style="width: 150px; height: 150px; background: repeating-linear-gradient(0deg, #000, #000 2px, #fff 2px, #fff 4px), repeating-linear-gradient(90deg, #000, #000 2px, #fff 2px, #fff 4px); margin: 0 auto; display: flex; justify-content: center; align-items: center;">
+                            <div style="text-align: center; background: white; padding: 10px;">
+                                <div style="font-size: 10px; margin-bottom: 5px;">QR CODE</div>
+                                <div style="font-size: 8px;">Voucher: ${voucherId}</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 12px; margin-top: 10px; color: #666;">Click to View Voucher</div>
+                    </div>
+                `;
+                
+                // Add click event to fallback QR
+                document.getElementById('fallbackQR').addEventListener('click', function() {
+                    showPage('page5');
+                    generateVoucher();
+                    createConfetti();
+                });
+                
+                // Start QR code timer
+                startQRTimer();
+            }
+        }
+
+        // Start QR code validity timer
+        function startQRTimer() {
+            clearInterval(qrTimer);
+            timeLeft = 30 * 60; // 30 minutes
+            
+            qrTimer = setInterval(function() {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('qrTimer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(qrTimer);
+                    document.getElementById('qrTimer').textContent = 'EXPIRED';
+                    document.getElementById('qrTimer').style.color = '#ff4444';
+                }
+            }, 1000);
+        }
+
+        // Generate voucher details - FIXED VERSION
+        function generateVoucher() {
+            // Get voucher data from localStorage
+            const voucherData = JSON.parse(localStorage.getItem('recycleVoucherData'));
+            
+            if (voucherData) {
+                const totalValue = voucherData.bottles * pricePerBottle;
+                
+                // Update user information - FIXED: Using correct data
+                document.getElementById('userName').textContent = voucherData.userName || "Not provided";
+                document.getElementById('userPhone').textContent = voucherData.userPhone || "Not provided";
+                document.getElementById('userEmail').textContent = voucherData.userEmail || "Not provided";
+                document.getElementById('userAddress').textContent = voucherData.userAddress || "Not provided";
+                
+                // Update voucher details - FIXED: Using correct data
+                document.getElementById('bottlesRecycled').textContent = voucherData.bottles || 0;
+                document.getElementById('plasticType').textContent = voucherData.type || "PET";
+                document.getElementById('voucherTotal').textContent = `Total: ₦${totalValue}`;
+                document.getElementById('voucherId').textContent = voucherData.voucherId || "RTW-0000-0000";
+                
+                // Set current date - FIXED: Proper date formatting
+                const now = new Date(voucherData.timestamp || new Date());
+                const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                document.getElementById('voucherDate').textContent = now.toLocaleDateString('en-US', options);
+                
+                // Calculate environmental impact
+                const co2Saved = ((voucherData.bottles || 0) * 0.15).toFixed(2);
+                const energySaved = ((voucherData.bottles || 0) * 5).toFixed(0);
+                
+                document.getElementById('co2Saved').textContent = `CO₂ Saved: ${co2Saved} kg`;
+                document.getElementById('energySaved').textContent = `Energy Saved: ${energySaved} kWh`;
+                
+                // Update rewards points
+                document.getElementById('rewardsPoints').textContent = `+${(voucherData.bottles || 0) * 10} Points`;
+                
+                // Add success animation
+                document.getElementById('voucherContent').classList.add('success-animation');
+            } else {
+                console.error("No voucher data found in localStorage");
+            }
+        }
+
+        // Update preview stats
+        function updatePreviewStats() {
+            document.getElementById('co2Preview').textContent = (bottleCount * 0.15).toFixed(2);
+            document.getElementById('energyPreview').textContent = bottleCount * 5;
+            document.getElementById('moneyPreview').textContent = `₦${bottleCount * pricePerBottle}`;
+        }
+
+        // Download voucher as PDF - FIXED VERSION
+        function downloadVoucher() {
+            const { jsPDF } = window.jspdf;
+            
+            // Add loading state
+            const downloadBtn = document.getElementById('downloadBtn');
+            const originalText = downloadBtn.textContent;
+            downloadBtn.textContent = 'Generating PDF...';
+            downloadBtn.disabled = true;
+            
+            html2canvas(document.getElementById('voucherContent'), {
+                scale: 2,
+                useCORS: true,
+                logging: false
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgWidth = 190;
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                
+                // Center the image on the page
+                const x = (210 - imgWidth) / 2;
+                const y = (297 - imgHeight) / 2;
+                
+                pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+                pdf.save('recycling-voucher.pdf');
+                
+                // Reset button state
+                downloadBtn.textContent = originalText;
+                downloadBtn.disabled = false;
+                
+                // Show success message
+                alert('Voucher downloaded successfully!');
+            }).catch(error => {
+                console.error('Error generating PDF:', error);
+                downloadBtn.textContent = originalText;
+                downloadBtn.disabled = false;
+                alert('Error downloading voucher. Please try again.');
+            });
+        }
+
+        // Download QR code as image
+        function downloadQRCode() {
+            const qrCodeElement = document.getElementById('qrCode');
+            html2canvas(qrCodeElement).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'recycle-qr-code.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+
+        // Create confetti effect
+        function createConfetti() {
+            const colors = ['#4CAF50', '#45a049', '#2c5530', '#8BC34A', '#CDDC39'];
+            const confettiCount = 100;
+            
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                document.body.appendChild(confetti);
+                
+                // Animate confetti
+                const animation = confetti.animate([
+                    { top: '-10px', opacity: 1, transform: `rotate(0deg) scale(1)` },
+                    { top: '100vh', opacity: 0, transform: `rotate(720deg) scale(0.5)` }
+                ], {
+                    duration: 2000 + Math.random() * 3000,
+                    easing: 'cubic-bezier(0.1, 0.8, 0.2, 1)'
+                });
+                
+                // Remove confetti after animation
+                animation.onfinish = () => confetti.remove();
+            }
+        }
+
+        // Share functions
+        function shareOnWhatsApp() {
+            const voucherData = JSON.parse(localStorage.getItem('recycleVoucherData'));
+            const text = `I just recycled ${voucherData.bottles} bottles and earned ₦${voucherData.bottles * pricePerBottle}! Join me in recycling for a better planet. ♻️`;
+            const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+        }
+
+        function shareOnFacebook() {
+            const voucherData = JSON.parse(localStorage.getItem('recycleVoucherData'));
+            const text = `I just recycled ${voucherData.bottles} bottles and earned ₦${voucherData.bottles * pricePerBottle}!`;
+            const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+        }
+
+        // Validate biodata form
+        function validateBiodata() {
+            const fullName = document.getElementById('fullName').value.trim();
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            const address = document.getElementById('address').value.trim();
+            
+            if (!fullName) {
+                alert('Please enter your full name');
+                return false;
+            }
+            
+            if (!phoneNumber) {
+                alert('Please enter your phone number');
+                return false;
+            }
+            
+            if (!address) {
+                alert('Please enter your address');
+                return false;
+            }
+            
+            // Save user data
+            userData = {
+                fullName: fullName,
+                phoneNumber: phoneNumber,
+                email: document.getElementById('email').value.trim(),
+                address: address
+            };
+            
+            return true;
+        }
+
+        // Check URL for voucher parameter on page load
+        function checkForVoucherInURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const voucherId = urlParams.get('voucher');
+            
+            if (voucherId) {
+                // Show voucher page directly
+                showPage('page5');
+                generateVoucher();
+                createConfetti();
+            }
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Generate watermarks for all pages
+            generateCircularTextWatermarks('watermarkContainer');
+            generateCircularTextWatermarks('watermarkContainer2');
+            generateCircularTextWatermarks('watermarkContainer3');
+            generateCircularTextWatermarks('watermarkContainer4');
+            generateCircularTextWatermarks('watermarkContainer5');
+            
+            // Check if we should show voucher page directly from URL
+            checkForVoucherInURL();
+            
+            // Page 1: Welcome page with dialog
+            document.getElementById('getStartedBtn').addEventListener('click', function() {
+                document.getElementById('dialogOverlay').style.display = 'flex';
+            });
+
+            document.getElementById('closeDialogBtn').addEventListener('click', function() {
+                document.getElementById('dialogOverlay').style.display = 'none';
+                showPage('page2');
+            });
+
+            // Close dialog when clicking outside
+            document.getElementById('dialogOverlay').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.style.display = 'none';
+                }
+            });
+
+            // Page 2: Biodata page
+            document.getElementById('backBtn2').addEventListener('click', function() {
+                showPage('page1');
+            });
+
+            document.getElementById('nextBtn2').addEventListener('click', function() {
+                if (validateBiodata()) {
+                    showPage('page3');
+                }
+            });
+
+            // Page 3: Bottle input page
+            document.getElementById('increaseBtn').addEventListener('click', function() {
+                if (bottleCount < 1000) {
+                    bottleCount++;
+                    document.getElementById('counterValue').textContent = bottleCount;
+                    document.getElementById('bottleCount').value = bottleCount;
+                    updatePreviewStats();
+                }
+            });
+
+            document.getElementById('decreaseBtn').addEventListener('click', function() {
+                if (bottleCount > 1) {
+                    bottleCount--;
+                    document.getElementById('counterValue').textContent = bottleCount;
+                    document.getElementById('bottleCount').value = bottleCount;
+                    updatePreviewStats();
+                }
+            });
+
+            // Plastic type selection
+            document.querySelectorAll('.bottle-type').forEach(type => {
+                type.addEventListener('click', function() {
+                    document.querySelectorAll('.bottle-type').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    plasticType = this.getAttribute('data-type');
+                });
+            });
+
+            document.getElementById('backBtn3').addEventListener('click', function() {
+                showPage('page2');
+            });
+
+            document.getElementById('nextBtn3').addEventListener('click', function() {
+                if (bottleCount < 1) {
+                    alert('Please enter a valid number of bottles (at least 1)');
+                    return;
+                }
+                
+                showPage('page4');
+                generateQRCode();
+            });
+
+            // Page 4: QR Code page
+            document.getElementById('backBtn4').addEventListener('click', function() {
+                showPage('page3');
+            });
+
+            document.getElementById('downloadQRBtn').addEventListener('click', downloadQRCode);
+
+            // Page 5: Voucher page
+            document.getElementById('backBtn5').addEventListener('click', function() {
+                showPage('page4');
+            });
+
+            document.getElementById('downloadBtn').addEventListener('click', downloadVoucher);
+
+            // Initialize preview stats
+            updatePreviewStats();
+        });
+    </script>
 </body>
 </html>
