@@ -383,27 +383,18 @@
             justify-content: center;
             align-items: center;
             background: white;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .qr-code:hover {
+            transform: scale(1.05);
         }
 
         .qr-instructions {
             margin-top: 20px;
             color: #666;
             font-size: 0.9em;
-        }
-
-        .scan-animation {
-            width: 200px;
-            height: 5px;
-            background: #4CAF50;
-            margin: 10px auto;
-            border-radius: 5px;
-            animation: scan 2s infinite;
-        }
-
-        @keyframes scan {
-            0% { transform: translateY(0); }
-            50% { transform: translateY(190px); }
-            100% { transform: translateY(0); }
         }
 
         /* Page 5 Styles */
@@ -416,6 +407,18 @@
             width: 400px;
             text-align: center;
             border: 2px dashed #4CAF50;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .voucher::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(to right, #4CAF50, #45a049, #2c5530);
         }
 
         .voucher-title {
@@ -486,6 +489,45 @@
             border-radius: 10px;
             margin: 15px 0;
             text-align: left;
+        }
+
+        /* New Features */
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: #f0f7f0;
+            border-radius: 10px;
+            margin: 10px;
+            min-width: 120px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c5530;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #5a7d5e;
+            margin-top: 5px;
+        }
+
+        .success-animation {
+            animation: successPulse 2s ease-in-out;
+        }
+
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
         /* Progress Bar */
@@ -664,6 +706,22 @@
                     <div class="bottle-type" data-type="Other">Other Plastics</div>
                 </div>
             </div>
+
+            <!-- Environmental Stats -->
+            <div class="stats-container">
+                <div class="stat-item">
+                    <div class="stat-value" id="co2Preview">0.15</div>
+                    <div class="stat-label">kg CO₂ Saved</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="energyPreview">5</div>
+                    <div class="stat-label">kWh Energy</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="moneyPreview">₦20</div>
+                    <div class="stat-label">Earnings</div>
+                </div>
+            </div>
             
             <div class="progress-container">
                 <div class="progress-bar" id="progressBar3"></div>
@@ -671,7 +729,7 @@
             
             <div>
                 <button class="back-btn" id="backBtn3">Back</button>
-                <button class="next-btn" id="nextBtn3">Next</button>
+                <button class="next-btn" id="nextBtn3">Generate QR</button>
             </div>
         </div>
     </div>
@@ -681,26 +739,20 @@
         <div class="watermark-container" id="watermarkContainer4"></div>
         <div class="main-content">
             <div class="recycle-icon">♻️</div>
-            <div class="welcome-text">Scan QR Code</div>
-            <div class="welcome-subtext">Scan this QR code with your phone to get your recycling voucher</div>
+            <div class="welcome-text">Your QR Code is Ready!</div>
+            <div class="welcome-subtext">Click the QR code to view your voucher</div>
             
             <div class="qr-code-container">
                 <div class="qr-code" id="qrCode">
                     <!-- QR Code will be generated here -->
                 </div>
-                <div class="scan-animation"></div>
                 <div class="qr-instructions">
-                    Point your phone camera at the QR code to scan
+                    Click the QR code above to view your voucher
                 </div>
-            </div>
-            
-            <div class="welcome-subtext" style="margin-top: 20px;">
-                After scanning, you'll receive a downloadable voucher with your recycling details
             </div>
             
             <div>
                 <button class="back-btn" id="backBtn4">Back</button>
-                <button class="next-btn" id="simulateScanBtn">Get Voucher</button>
             </div>
         </div>
     </div>
@@ -782,9 +834,8 @@
             email: "",
             address: ""
         };
-        let currentVoucherData = null;
 
-        // Generate circular text watermarks with clear, readable text
+        // Generate circular text watermarks
         function generateCircularTextWatermarks(containerId) {
             const container = document.getElementById(containerId);
             const text = "RECYCLE TO WEALTH";
@@ -915,8 +966,8 @@
             // Generate a unique voucher ID
             const voucherId = 'RTW-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
             
-            // Create voucher data object
-            currentVoucherData = {
+            // Create voucher data object with ALL data
+            const voucherData = {
                 voucherId: voucherId,
                 userName: userData.fullName,
                 userPhone: userData.phoneNumber,
@@ -925,19 +976,18 @@
                 bottles: bottleCount,
                 type: plasticType,
                 total: bottleCount * pricePerBottle,
-                timestamp: new Date().toISOString(),
-                action: 'showVoucher' // This tells the system to show the voucher page
+                timestamp: new Date().toISOString()
             };
             
-            // Create URL that will trigger voucher display
-            const voucherUrl = `${window.location.origin}${window.location.pathname}?voucher=${encodeURIComponent(JSON.stringify(currentVoucherData))}`;
+            // Store ALL data in localStorage
+            localStorage.setItem('recycleVoucherData', JSON.stringify(voucherData));
             
             try {
                 // Generate QR code using the qrcode-generator library
                 const typeNumber = 0; // Auto type
                 const errorCorrectionLevel = 'L'; // Low error correction
                 const qr = qrcode(typeNumber, errorCorrectionLevel);
-                qr.addData(voucherUrl);
+                qr.addData(JSON.stringify(voucherData));
                 qr.make();
                 
                 // Create the QR code as an HTML table
@@ -951,12 +1001,20 @@
                     qrImage.style.height = '180px';
                     qrImage.style.display = 'block';
                     qrImage.style.margin = '0 auto';
+                    qrImage.style.cursor = 'pointer';
+                    
+                    // Add click event to QR code to navigate to voucher page
+                    qrImage.addEventListener('click', function() {
+                        showPage('page5');
+                        generateVoucher();
+                    });
                 }
+                
             } catch (error) {
                 console.error('QR Code generation error:', error);
                 // Fallback: Create a simple visual representation
                 qrCodeElement.innerHTML = `
-                    <div style="text-align: center; padding: 20px; background: white;">
+                    <div style="text-align: center; padding: 20px; background: white; cursor: pointer;" id="fallbackQR">
                         <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #2c5530;">RECYCLE TO WEALTH</div>
                         <div style="width: 150px; height: 150px; background: repeating-linear-gradient(0deg, #000, #000 2px, #fff 2px, #fff 4px), repeating-linear-gradient(90deg, #000, #000 2px, #fff 2px, #fff 4px); margin: 0 auto; display: flex; justify-content: center; align-items: center;">
                             <div style="text-align: center; background: white; padding: 10px;">
@@ -964,13 +1022,19 @@
                                 <div style="font-size: 8px;">Voucher: ${voucherId}</div>
                             </div>
                         </div>
-                        <div style="font-size: 12px; margin-top: 10px; color: #666;">Scan for Voucher</div>
+                        <div style="font-size: 12px; margin-top: 10px; color: #666;">Click to View Voucher</div>
                     </div>
                 `;
+                
+                // Add click event to fallback QR
+                document.getElementById('fallbackQR').addEventListener('click', function() {
+                    showPage('page5');
+                    generateVoucher();
+                });
             }
         }
 
-        // Generate voucher details
+       // Generate voucher details
         function generateVoucher() {
             const totalValue = bottleCount * pricePerBottle;
             
