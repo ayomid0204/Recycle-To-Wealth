@@ -383,13 +383,27 @@
             justify-content: center;
             align-items: center;
             background: white;
-            cursor: pointer;
         }
 
         .qr-instructions {
             margin-top: 20px;
             color: #666;
             font-size: 0.9em;
+        }
+
+        .scan-animation {
+            width: 200px;
+            height: 5px;
+            background: #4CAF50;
+            margin: 10px auto;
+            border-radius: 5px;
+            animation: scan 2s infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(190px); }
+            100% { transform: translateY(0); }
         }
 
         /* Page 5 Styles */
@@ -657,7 +671,7 @@
             
             <div>
                 <button class="back-btn" id="backBtn3">Back</button>
-                <button class="next-btn" id="nextBtn3">Generate QR</button>
+                <button class="next-btn" id="nextBtn3">Next</button>
             </div>
         </div>
     </div>
@@ -667,20 +681,26 @@
         <div class="watermark-container" id="watermarkContainer4"></div>
         <div class="main-content">
             <div class="recycle-icon">♻️</div>
-            <div class="welcome-text">Your QR Code is Ready!</div>
-            <div class="welcome-subtext">Click the QR code to view your voucher</div>
+            <div class="welcome-text">Scan QR Code</div>
+            <div class="welcome-subtext">Scan this QR code with your phone to get your recycling voucher</div>
             
             <div class="qr-code-container">
                 <div class="qr-code" id="qrCode">
                     <!-- QR Code will be generated here -->
                 </div>
+                <div class="scan-animation"></div>
                 <div class="qr-instructions">
-                    Click the QR code above to view your voucher
+                    Point your phone camera at the QR code to scan
                 </div>
+            </div>
+            
+            <div class="welcome-subtext" style="margin-top: 20px;">
+                After scanning, you'll receive a downloadable voucher with your recycling details
             </div>
             
             <div>
                 <button class="back-btn" id="backBtn4">Back</button>
+                <button class="next-btn" id="simulateScanBtn">Get Voucher</button>
             </div>
         </div>
     </div>
@@ -762,8 +782,9 @@
             email: "",
             address: ""
         };
+        let currentVoucherData = null;
 
-        // Generate circular text watermarks
+        // Generate circular text watermarks with clear, readable text
         function generateCircularTextWatermarks(containerId) {
             const container = document.getElementById(containerId);
             const text = "RECYCLE TO WEALTH";
@@ -894,8 +915,8 @@
             // Generate a unique voucher ID
             const voucherId = 'RTW-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
             
-            // Create voucher data object with ALL data
-            const voucherData = {
+            // Create voucher data object
+            currentVoucherData = {
                 voucherId: voucherId,
                 userName: userData.fullName,
                 userPhone: userData.phoneNumber,
@@ -904,14 +925,12 @@
                 bottles: bottleCount,
                 type: plasticType,
                 total: bottleCount * pricePerBottle,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                action: 'showVoucher' // This tells the system to show the voucher page
             };
             
-            // Store ALL data in localStorage
-            localStorage.setItem('recycleVoucherData', JSON.stringify(voucherData));
-            
             // Create URL that will trigger voucher display
-            const voucherUrl = window.location.href.split('?')[0] + '?voucher=' + voucherId;
+            const voucherUrl = `${window.location.origin}${window.location.pathname}?voucher=${encodeURIComponent(JSON.stringify(currentVoucherData))}`;
             
             try {
                 // Generate QR code using the qrcode-generator library
@@ -932,20 +951,12 @@
                     qrImage.style.height = '180px';
                     qrImage.style.display = 'block';
                     qrImage.style.margin = '0 auto';
-                    qrImage.style.cursor = 'pointer';
-                    
-                    // Add click event to QR code to navigate to voucher page
-                    qrImage.addEventListener('click', function() {
-                        showPage('page5');
-                        generateVoucher();
-                    });
                 }
-                
             } catch (error) {
                 console.error('QR Code generation error:', error);
                 // Fallback: Create a simple visual representation
                 qrCodeElement.innerHTML = `
-                    <div style="text-align: center; padding: 20px; background: white; cursor: pointer;" id="fallbackQR">
+                    <div style="text-align: center; padding: 20px; background: white;">
                         <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #2c5530;">RECYCLE TO WEALTH</div>
                         <div style="width: 150px; height: 150px; background: repeating-linear-gradient(0deg, #000, #000 2px, #fff 2px, #fff 4px), repeating-linear-gradient(90deg, #000, #000 2px, #fff 2px, #fff 4px); margin: 0 auto; display: flex; justify-content: center; align-items: center;">
                             <div style="text-align: center; background: white; padding: 10px;">
@@ -953,94 +964,69 @@
                                 <div style="font-size: 8px;">Voucher: ${voucherId}</div>
                             </div>
                         </div>
-                        <div style="font-size: 12px; margin-top: 10px; color: #666;">Click to View Voucher</div>
+                        <div style="font-size: 12px; margin-top: 10px; color: #666;">Scan for Voucher</div>
                     </div>
                 `;
-                
-                // Add click event to fallback QR
-                document.getElementById('fallbackQR').addEventListener('click', function() {
-                    showPage('page5');
-                    generateVoucher();
-                });
             }
         }
 
-        // Generate voucher details - FIXED VERSION
+        // Generate voucher details
         function generateVoucher() {
-            // Get voucher data from localStorage
-            const voucherData = JSON.parse(localStorage.getItem('recycleVoucherData'));
+            const totalValue = bottleCount * pricePerBottle;
             
-            if (voucherData) {
-                const totalValue = voucherData.bottles * pricePerBottle;
-                
-                // Update user information
-                document.getElementById('userName').textContent = voucherData.userName;
-                document.getElementById('userPhone').textContent = voucherData.userPhone;
-                document.getElementById('userEmail').textContent = voucherData.userEmail || "Not provided";
-                document.getElementById('userAddress').textContent = voucherData.userAddress;
-                
-                // Update voucher details
-                document.getElementById('bottlesRecycled').textContent = voucherData.bottles;
-                document.getElementById('plasticType').textContent = voucherData.type;
-                document.getElementById('voucherTotal').textContent = `Total: ₦${totalValue}`;
-                document.getElementById('voucherId').textContent = voucherData.voucherId;
-                
-                // Set current date
-                const now = new Date(voucherData.timestamp);
-                const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-                document.getElementById('voucherDate').textContent = now.toLocaleDateString('en-US', options);
-                
-                // Calculate environmental impact
-                const co2Saved = (voucherData.bottles * 0.15).toFixed(2);
-                const energySaved = (voucherData.bottles * 5).toFixed(0);
-                
-                document.getElementById('co2Saved').textContent = `CO₂ Saved: ${co2Saved} kg`;
-                document.getElementById('energySaved').textContent = `Energy Saved: ${energySaved} kWh`;
-                
-            } else {
-                console.error("No voucher data found in localStorage");
-                alert("Error: Voucher data not found. Please go back and generate a new QR code.");
-            }
+            // Update user information
+            document.getElementById('userName').textContent = userData.fullName;
+            document.getElementById('userPhone').textContent = userData.phoneNumber;
+            document.getElementById('userEmail').textContent = userData.email || 'Not provided';
+            document.getElementById('userAddress').textContent = userData.address;
+            
+            // Update voucher details
+            document.getElementById('bottlesRecycled').textContent = bottleCount;
+            document.getElementById('plasticType').textContent = plasticType;
+            document.getElementById('voucherTotal').textContent = `Total: ₦${totalValue}`;
+            
+            // Generate a random voucher ID
+            const voucherId = 'RTW-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('voucherId').textContent = voucherId;
+            
+            // Set current date
+            const now = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('voucherDate').textContent = now.toLocaleDateString('en-US', options);
+            
+            // Calculate environmental impact
+            const co2Saved = (bottleCount * 0.15).toFixed(2); // kg of CO2 saved per bottle
+            const energySaved = (bottleCount * 5).toFixed(0); // kWh saved per bottle
+            
+            document.getElementById('co2Saved').textContent = `CO₂ Saved: ${co2Saved} kg`;
+            document.getElementById('energySaved').textContent = `Energy Saved: ${energySaved} kWh`;
         }
 
-        // Download voucher as PDF - FIXED VERSION
+        // Download voucher as PDF
         function downloadVoucher() {
             const { jsPDF } = window.jspdf;
             
-            // Add loading state
-            const downloadBtn = document.getElementById('downloadBtn');
-            const originalText = downloadBtn.textContent;
-            downloadBtn.textContent = 'Generating PDF...';
-            downloadBtn.disabled = true;
-            
-            html2canvas(document.getElementById('voucherContent'), {
-                scale: 2,
-                useCORS: true,
-                logging: false
-            }).then(canvas => {
+            html2canvas(document.getElementById('voucherContent')).then(canvas => {
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const imgWidth = 190;
+                const pageHeight = 295;
                 const imgHeight = canvas.height * imgWidth / canvas.width;
-                
-                // Center the image on the page
-                const x = (210 - imgWidth) / 2;
-                const y = (297 - imgHeight) / 2;
-                
-                pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+                let heightLeft = imgHeight;
+                let position = 10;
+
+                pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                // Add new page if content is too long
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
                 pdf.save('recycling-voucher.pdf');
-                
-                // Reset button state
-                downloadBtn.textContent = originalText;
-                downloadBtn.disabled = false;
-                
-                // Show success message
-                alert('Voucher downloaded successfully!');
-            }).catch(error => {
-                console.error('Error generating PDF:', error);
-                downloadBtn.textContent = originalText;
-                downloadBtn.disabled = false;
-                alert('Error downloading voucher. Please try again.');
             });
         }
 
@@ -1079,12 +1065,29 @@
         // Check URL for voucher parameter on page load
         function checkForVoucherInURL() {
             const urlParams = new URLSearchParams(window.location.search);
-            const voucherId = urlParams.get('voucher');
+            const voucherParam = urlParams.get('voucher');
             
-            if (voucherId) {
-                // Show voucher page directly
-                showPage('page5');
-                generateVoucher();
+            if (voucherParam) {
+                try {
+                    const voucherData = JSON.parse(decodeURIComponent(voucherParam));
+                    if (voucherData.action === 'showVoucher') {
+                        // Set the global data from the URL parameters
+                        userData = {
+                            fullName: voucherData.userName,
+                            phoneNumber: voucherData.userPhone,
+                            email: voucherData.userEmail,
+                            address: voucherData.userAddress
+                        };
+                        bottleCount = voucherData.bottles;
+                        plasticType = voucherData.type;
+                        
+                        // Show the voucher page directly
+                        showPage('page5');
+                        generateVoucher();
+                    }
+                } catch (error) {
+                    console.error('Error parsing voucher data from URL:', error);
+                }
             }
         }
 
@@ -1173,6 +1176,11 @@
                 showPage('page3');
             });
 
+            document.getElementById('simulateScanBtn').addEventListener('click', function() {
+                showPage('page5');
+                generateVoucher();
+            });
+
             // Page 5: Voucher page
             document.getElementById('backBtn5').addEventListener('click', function() {
                 showPage('page4');
@@ -1183,3 +1191,4 @@
     </script>
 </body>
 </html>
+
