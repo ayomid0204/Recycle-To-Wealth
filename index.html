@@ -391,21 +391,6 @@
             font-size: 0.9em;
         }
 
-        .scan-animation {
-            width: 200px;
-            height: 5px;
-            background: #4CAF50;
-            margin: 10px auto;
-            border-radius: 5px;
-            animation: scan 2s infinite;
-        }
-
-        @keyframes scan {
-            0% { transform: translateY(0); }
-            50% { transform: translateY(190px); }
-            100% { transform: translateY(0); }
-        }
-
         /* Page 5 Styles */
         .voucher {
             background: white;
@@ -486,6 +471,110 @@
             border-radius: 10px;
             margin: 15px 0;
             text-align: left;
+        }
+
+        /* New Features */
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: #f0f7f0;
+            border-radius: 10px;
+            margin: 10px;
+            min-width: 120px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c5530;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #5a7d5e;
+            margin-top: 5px;
+        }
+
+        .rewards-section {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .rewards-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .rewards-points {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .timer-container {
+            background: #2c5530;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .timer-text {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .timer {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .share-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .share-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .share-whatsapp {
+            background: #25D366;
+            color: white;
+        }
+
+        .share-facebook {
+            background: #3b5998;
+            color: white;
+        }
+
+        .share-twitter {
+            background: #1DA1F2;
+            color: white;
+        }
+
+        .share-btn:hover {
+            transform: translateY(-3px);
         }
 
         /* Progress Bar */
@@ -664,6 +753,22 @@
                     <div class="bottle-type" data-type="Other">Other Plastics</div>
                 </div>
             </div>
+
+            <!-- Environmental Stats -->
+            <div class="stats-container">
+                <div class="stat-item">
+                    <div class="stat-value" id="co2Preview">0.15</div>
+                    <div class="stat-label">kg CO₂ Saved</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="energyPreview">5</div>
+                    <div class="stat-label">kWh Energy</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="moneyPreview">₦20</div>
+                    <div class="stat-label">Earnings</div>
+                </div>
+            </div>
             
             <div class="progress-container">
                 <div class="progress-bar" id="progressBar3"></div>
@@ -671,7 +776,7 @@
             
             <div>
                 <button class="back-btn" id="backBtn3">Back</button>
-                <button class="next-btn" id="nextBtn3">Next</button>
+                <button class="next-btn" id="nextBtn3">Generate QR</button>
             </div>
         </div>
     </div>
@@ -681,26 +786,34 @@
         <div class="watermark-container" id="watermarkContainer4"></div>
         <div class="main-content">
             <div class="recycle-icon">♻️</div>
-            <div class="welcome-text">Scan QR Code</div>
-            <div class="welcome-subtext">Scan this QR code with your phone to get your recycling voucher</div>
+            <div class="welcome-text">Your QR Code is Ready!</div>
+            <div class="welcome-subtext">Scan this QR code at any Recycle To Wealth center to claim your voucher</div>
             
             <div class="qr-code-container">
                 <div class="qr-code" id="qrCode">
                     <!-- QR Code will be generated here -->
                 </div>
-                <div class="scan-animation"></div>
                 <div class="qr-instructions">
-                    Point your phone camera at the QR code to scan
+                    Present this QR code at our recycling center to receive your payment
                 </div>
             </div>
-            
-            <div class="welcome-subtext" style="margin-top: 20px;">
-                After scanning, you'll receive a downloadable voucher with your recycling details
+
+            <!-- Rewards Section -->
+            <div class="rewards-section">
+                <div class="rewards-title">You've Earned Recycling Points!</div>
+                <div class="rewards-points" id="rewardsPoints">+50 Points</div>
+                <div>Keep recycling to unlock special rewards and discounts</div>
+            </div>
+
+            <!-- Timer for QR Validity -->
+            <div class="timer-container">
+                <div class="timer-text">QR Code Valid for:</div>
+                <div class="timer" id="qrTimer">30:00</div>
             </div>
             
             <div>
                 <button class="back-btn" id="backBtn4">Back</button>
-                <button class="next-btn" id="simulateScanBtn">Get Voucher</button>
+                <button class="download-btn" id="downloadQRBtn">Download QR</button>
             </div>
         </div>
     </div>
@@ -762,6 +875,12 @@
                     <div class="impact-value" id="co2Saved">CO₂ Saved: 0 kg</div>
                     <div class="impact-value" id="energySaved">Energy Saved: 0 kWh</div>
                 </div>
+
+                <!-- Share Buttons -->
+                <div class="share-buttons">
+                    <button class="share-btn share-whatsapp" onclick="shareOnWhatsApp()">Share on WhatsApp</button>
+                    <button class="share-btn share-facebook" onclick="shareOnFacebook()">Share on Facebook</button>
+                </div>
             </div>
             
             <div>
@@ -782,7 +901,8 @@
             email: "",
             address: ""
         };
-        let currentVoucherData = null;
+        let qrTimer;
+        let timeLeft = 30 * 60; // 30 minutes in seconds
 
         // Generate circular text watermarks with clear, readable text
         function generateCircularTextWatermarks(containerId) {
@@ -916,7 +1036,7 @@
             const voucherId = 'RTW-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
             
             // Create voucher data object
-            currentVoucherData = {
+            const voucherData = {
                 voucherId: voucherId,
                 userName: userData.fullName,
                 userPhone: userData.phoneNumber,
@@ -925,12 +1045,14 @@
                 bottles: bottleCount,
                 type: plasticType,
                 total: bottleCount * pricePerBottle,
-                timestamp: new Date().toISOString(),
-                action: 'showVoucher' // This tells the system to show the voucher page
+                timestamp: new Date().toISOString()
             };
             
+            // Store voucher data in localStorage for the voucher page
+            localStorage.setItem('recycleVoucherData', JSON.stringify(voucherData));
+            
             // Create URL that will trigger voucher display
-            const voucherUrl = `${window.location.origin}${window.location.pathname}?voucher=${encodeURIComponent(JSON.stringify(currentVoucherData))}`;
+            const voucherUrl = window.location.href.split('?')[0] + '?voucher=' + voucherId;
             
             try {
                 // Generate QR code using the qrcode-generator library
@@ -951,12 +1073,23 @@
                     qrImage.style.height = '180px';
                     qrImage.style.display = 'block';
                     qrImage.style.margin = '0 auto';
+                    qrImage.style.cursor = 'pointer';
+                    
+                    // Add click event to QR code to navigate to voucher page
+                    qrImage.addEventListener('click', function() {
+                        showPage('page5');
+                        generateVoucher();
+                    });
                 }
+                
+                // Start QR code timer
+                startQRTimer();
+                
             } catch (error) {
                 console.error('QR Code generation error:', error);
                 // Fallback: Create a simple visual representation
                 qrCodeElement.innerHTML = `
-                    <div style="text-align: center; padding: 20px; background: white;">
+                    <div style="text-align: center; padding: 20px; background: white; cursor: pointer;" id="fallbackQR">
                         <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #2c5530;">RECYCLE TO WEALTH</div>
                         <div style="width: 150px; height: 150px; background: repeating-linear-gradient(0deg, #000, #000 2px, #fff 2px, #fff 4px), repeating-linear-gradient(90deg, #000, #000 2px, #fff 2px, #fff 4px); margin: 0 auto; display: flex; justify-content: center; align-items: center;">
                             <div style="text-align: center; background: white; padding: 10px;">
@@ -964,42 +1097,83 @@
                                 <div style="font-size: 8px;">Voucher: ${voucherId}</div>
                             </div>
                         </div>
-                        <div style="font-size: 12px; margin-top: 10px; color: #666;">Scan for Voucher</div>
+                        <div style="font-size: 12px; margin-top: 10px; color: #666;">Click to View Voucher</div>
                     </div>
                 `;
+                
+                // Add click event to fallback QR
+                document.getElementById('fallbackQR').addEventListener('click', function() {
+                    showPage('page5');
+                    generateVoucher();
+                });
+                
+                // Start QR code timer
+                startQRTimer();
             }
+        }
+
+        // Start QR code validity timer
+        function startQRTimer() {
+            clearInterval(qrTimer);
+            timeLeft = 30 * 60; // 30 minutes
+            
+            qrTimer = setInterval(function() {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('qrTimer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(qrTimer);
+                    document.getElementById('qrTimer').textContent = 'EXPIRED';
+                    document.getElementById('qrTimer').style.color = '#ff4444';
+                }
+            }, 1000);
         }
 
         // Generate voucher details
         function generateVoucher() {
-            const totalValue = bottleCount * pricePerBottle;
+            // Get voucher data from localStorage
+            const voucherData = JSON.parse(localStorage.getItem('recycleVoucherData'));
             
-            // Update user information
-            document.getElementById('userName').textContent = userData.fullName;
-            document.getElementById('userPhone').textContent = userData.phoneNumber;
-            document.getElementById('userEmail').textContent = userData.email || 'Not provided';
-            document.getElementById('userAddress').textContent = userData.address;
-            
-            // Update voucher details
-            document.getElementById('bottlesRecycled').textContent = bottleCount;
-            document.getElementById('plasticType').textContent = plasticType;
-            document.getElementById('voucherTotal').textContent = `Total: ₦${totalValue}`;
-            
-            // Generate a random voucher ID
-            const voucherId = 'RTW-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
-            document.getElementById('voucherId').textContent = voucherId;
-            
-            // Set current date
-            const now = new Date();
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('voucherDate').textContent = now.toLocaleDateString('en-US', options);
-            
-            // Calculate environmental impact
-            const co2Saved = (bottleCount * 0.15).toFixed(2); // kg of CO2 saved per bottle
-            const energySaved = (bottleCount * 5).toFixed(0); // kWh saved per bottle
-            
-            document.getElementById('co2Saved').textContent = `CO₂ Saved: ${co2Saved} kg`;
-            document.getElementById('energySaved').textContent = `Energy Saved: ${energySaved} kWh`;
+            if (voucherData) {
+                const totalValue = voucherData.bottles * pricePerBottle;
+                
+                // Update user information
+                document.getElementById('userName').textContent = voucherData.userName;
+                document.getElementById('userPhone').textContent = voucherData.userPhone;
+                document.getElementById('userEmail').textContent = voucherData.userEmail || 'Not provided';
+                document.getElementById('userAddress').textContent = voucherData.userAddress;
+                
+                // Update voucher details
+                document.getElementById('bottlesRecycled').textContent = voucherData.bottles;
+                document.getElementById('plasticType').textContent = voucherData.type;
+                document.getElementById('voucherTotal').textContent = `Total: ₦${totalValue}`;
+                document.getElementById('voucherId').textContent = voucherData.voucherId;
+                
+                // Set current date
+                const now = new Date();
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                document.getElementById('voucherDate').textContent = now.toLocaleDateString('en-US', options);
+                
+                // Calculate environmental impact
+                const co2Saved = (voucherData.bottles * 0.15).toFixed(2);
+                const energySaved = (voucherData.bottles * 5).toFixed(0);
+                
+                document.getElementById('co2Saved').textContent = `CO₂ Saved: ${co2Saved} kg`;
+                document.getElementById('energySaved').textContent = `Energy Saved: ${energySaved} kWh`;
+                
+                // Update rewards points
+                document.getElementById('rewardsPoints').textContent = `+${voucherData.bottles * 10} Points`;
+            }
+        }
+
+        // Update preview stats
+        function updatePreviewStats() {
+            document.getElementById('co2Preview').textContent = (bottleCount * 0.15).toFixed(2);
+            document.getElementById('energyPreview').textContent = bottleCount * 5;
+            document.getElementById('moneyPreview').textContent = `₦${bottleCount * pricePerBottle}`;
         }
 
         // Download voucher as PDF
@@ -1028,6 +1202,32 @@
 
                 pdf.save('recycling-voucher.pdf');
             });
+        }
+
+        // Download QR code as image
+        function downloadQRCode() {
+            const qrCodeElement = document.getElementById('qrCode');
+            html2canvas(qrCodeElement).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'recycle-qr-code.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+
+        // Share functions
+        function shareOnWhatsApp() {
+            const voucherData = JSON.parse(localStorage.getItem('recycleVoucherData'));
+            const text = `I just recycled ${voucherData.bottles} bottles and earned ₦${voucherData.bottles * pricePerBottle}! Join me in recycling for a better planet. ♻️`;
+            const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+        }
+
+        function shareOnFacebook() {
+            const voucherData = JSON.parse(localStorage.getItem('recycleVoucherData'));
+            const text = `I just recycled ${voucherData.bottles} bottles and earned ₦${voucherData.bottles * pricePerBottle}!`;
+            const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
         }
 
         // Validate biodata form
@@ -1065,29 +1265,12 @@
         // Check URL for voucher parameter on page load
         function checkForVoucherInURL() {
             const urlParams = new URLSearchParams(window.location.search);
-            const voucherParam = urlParams.get('voucher');
+            const voucherId = urlParams.get('voucher');
             
-            if (voucherParam) {
-                try {
-                    const voucherData = JSON.parse(decodeURIComponent(voucherParam));
-                    if (voucherData.action === 'showVoucher') {
-                        // Set the global data from the URL parameters
-                        userData = {
-                            fullName: voucherData.userName,
-                            phoneNumber: voucherData.userPhone,
-                            email: voucherData.userEmail,
-                            address: voucherData.userAddress
-                        };
-                        bottleCount = voucherData.bottles;
-                        plasticType = voucherData.type;
-                        
-                        // Show the voucher page directly
-                        showPage('page5');
-                        generateVoucher();
-                    }
-                } catch (error) {
-                    console.error('Error parsing voucher data from URL:', error);
-                }
+            if (voucherId) {
+                // Show voucher page directly
+                showPage('page5');
+                generateVoucher();
             }
         }
 
@@ -1137,6 +1320,7 @@
                     bottleCount++;
                     document.getElementById('counterValue').textContent = bottleCount;
                     document.getElementById('bottleCount').value = bottleCount;
+                    updatePreviewStats();
                 }
             });
 
@@ -1145,6 +1329,7 @@
                     bottleCount--;
                     document.getElementById('counterValue').textContent = bottleCount;
                     document.getElementById('bottleCount').value = bottleCount;
+                    updatePreviewStats();
                 }
             });
 
@@ -1176,10 +1361,7 @@
                 showPage('page3');
             });
 
-            document.getElementById('simulateScanBtn').addEventListener('click', function() {
-                showPage('page5');
-                generateVoucher();
-            });
+            document.getElementById('downloadQRBtn').addEventListener('click', downloadQRCode);
 
             // Page 5: Voucher page
             document.getElementById('backBtn5').addEventListener('click', function() {
@@ -1187,6 +1369,9 @@
             });
 
             document.getElementById('downloadBtn').addEventListener('click', downloadVoucher);
+
+            // Initialize preview stats
+            updatePreviewStats();
         });
     </script>
 </body>
