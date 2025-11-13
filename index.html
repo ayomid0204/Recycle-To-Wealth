@@ -1035,18 +1035,19 @@
             // Generate a unique voucher ID
             const voucherId = 'RTW-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
             
-		// Create voucher data object - ENHANCED VERSION
-	const voucherData = {
-    voucherId: voucherId,
-    userName: userData.fullName || document.getElementById('fullName').value.trim(),
-    userPhone: userData.phoneNumber || document.getElementById('phoneNumber').value.trim(),
-    userEmail: userData.email || document.getElementById('email').value.trim(),
-    userAddress: userData.address || document.getElementById('address').value.trim(),
-    bottles: bottleCount,
-    type: plasticType,
-    total: bottleCount * pricePerBottle,
-    timestamp: new Date().toISOString()
-};
+            // Create voucher data object - FIXED: Save all user data
+            const voucherData = {
+                voucherId: voucherId,
+                userName: userData.fullName,
+                userPhone: userData.phoneNumber,
+                userEmail: userData.email,
+                userAddress: userData.address,
+                bottles: bottleCount,
+                type: plasticType,
+                total: bottleCount * pricePerBottle,
+                timestamp: new Date().toISOString()
+            };
+            
             // Store voucher data in localStorage for the voucher page
             localStorage.setItem('recycleVoucherData', JSON.stringify(voucherData));
             
@@ -1131,73 +1132,74 @@
             }, 1000);
         }
 
-	// Generate voucher details - UPDATED VERSION
-function generateVoucher() {
-		// Get voucher data from localStorage
-    const voucherData = JSON.parse(localStorage.getItem('recycleVoucherData'));
-    
-    if (voucherData) {
-        const totalValue = voucherData.bottles * pricePerBottle;
-        
-        // Update user information - FIXED: Use the actual user data
-        document.getElementById('userName').textContent = userData.fullName || voucherData.userName || 'Not provided';
-        document.getElementById('userPhone').textContent = userData.phoneNumber || voucherData.userPhone || 'Not provided';
-        document.getElementById('userEmail').textContent = userData.email || voucherData.userEmail || 'Not provided';
-        document.getElementById('userAddress').textContent = userData.address || voucherData.userAddress || 'Not provided';
-        
-        // Update voucher details - FIXED: Ensure all data displays
-        document.getElementById('bottlesRecycled').textContent = voucherData.bottles || bottleCount || 0;
-        document.getElementById('plasticType').textContent = voucherData.type || plasticType || 'PET';
-        document.getElementById('voucherTotal').textContent = `Total: ₦${totalValue}`;
-        document.getElementById('voucherId').textContent = voucherData.voucherId || 'RTW-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
-        
-        // Set current date - FIXED: Ensure date always shows
-        const now = new Date();
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('voucherDate').textContent = now.toLocaleDateString('en-US', options);
-        
-        // Calculate environmental impact - FIXED: Use actual bottle count
-        const actualBottleCount = voucherData.bottles || bottleCount || 0;
-        const co2Saved = (actualBottleCount * 0.15).toFixed(2);
-        const energySaved = (actualBottleCount * 5).toFixed(0);
-        
-        document.getElementById('co2Saved').textContent = `CO₂ Saved: ${co2Saved} kg`;
-        document.getElementById('energySaved').textContent = `Energy Saved: ${energySaved} kWh`;
-        
-        // Update rewards points - FIXED: Use actual bottle count
-        document.getElementById('rewardsPoints').textContent = `+${actualBottleCount * 10} Points`;
-    } else {
-        // Fallback: Use current global variables if no voucher data
-        const totalValue = bottleCount * pricePerBottle;
-        
-        // Update user information from global userData
-        document.getElementById('userName').textContent = userData.fullName || 'Not provided';
-        document.getElementById('userPhone').textContent = userData.phoneNumber || 'Not provided';
-        document.getElementById('userEmail').textContent = userData.email || 'Not provided';
-        document.getElementById('userAddress').textContent = userData.address || 'Not provided';
-        
-        // Update voucher details from global variables
-        document.getElementById('bottlesRecycled').textContent = bottleCount;
-        document.getElementById('plasticType').textContent = plasticType;
-        document.getElementById('voucherTotal').textContent = `Total: ₦${totalValue}`;
-        document.getElementById('voucherId').textContent = 'RTW-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
-        
-        // Set current date
-        const now = new Date();
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('voucherDate').textContent = now.toLocaleDateString('en-US', options);
-        
-        // Calculate environmental impact
-        const co2Saved = (bottleCount * 0.15).toFixed(2);
-        const energySaved = (bottleCount * 5).toFixed(0);
-        
-        document.getElementById('co2Saved').textContent = `CO₂ Saved: ${co2Saved} kg`;
-        document.getElementById('energySaved').textContent = `Energy Saved: ${energySaved} kWh`;
-        
-        // Update rewards points
-        document.getElementById('rewardsPoints').textContent = `+${bottleCount * 10} Points`;
-    }
-}
+        // Generate voucher details - FIXED VERSION
+        function generateVoucher() {
+            // Get voucher data from localStorage
+            const voucherData = JSON.parse(localStorage.getItem('recycleVoucherData'));
+            
+            if (voucherData) {
+                const totalValue = voucherData.bottles * pricePerBottle;
+                
+                // Update user information - FIXED: Use the actual user data
+                document.getElementById('userName').textContent = userData.fullName || voucherData.userName || 'Not provided';
+                document.getElementById('userPhone').textContent = userData.phoneNumber || voucherData.userPhone || 'Not provided';
+                document.getElementById('userEmail').textContent = userData.email || voucherData.userEmail || 'Not provided';
+                document.getElementById('userAddress').textContent = userData.address || voucherData.userAddress || 'Not provided';
+                
+                // Update voucher details - FIXED: Ensure all data displays
+                document.getElementById('bottlesRecycled').textContent = voucherData.bottles || bottleCount || 0;
+                document.getElementById('plasticType').textContent = voucherData.type || plasticType || 'PET';
+                document.getElementById('voucherTotal').textContent = `Total: ₦${totalValue}`;
+                document.getElementById('voucherId').textContent = voucherData.voucherId || 'RTW-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
+                
+                // Set current date - FIXED: Ensure date always shows
+                const now = new Date();
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                document.getElementById('voucherDate').textContent = now.toLocaleDateString('en-US', options);
+                
+                // Calculate environmental impact - FIXED: Use actual bottle count
+                const actualBottleCount = voucherData.bottles || bottleCount || 0;
+                const co2Saved = (actualBottleCount * 0.15).toFixed(2);
+                const energySaved = (actualBottleCount * 5).toFixed(0);
+                
+                document.getElementById('co2Saved').textContent = `CO₂ Saved: ${co2Saved} kg`;
+                document.getElementById('energySaved').textContent = `Energy Saved: ${energySaved} kWh`;
+                
+                // Update rewards points - FIXED: Use actual bottle count
+                document.getElementById('rewardsPoints').textContent = `+${actualBottleCount * 10} Points`;
+            } else {
+                // Fallback: Use current global variables if no voucher data
+                const totalValue = bottleCount * pricePerBottle;
+                
+                // Update user information from global userData
+                document.getElementById('userName').textContent = userData.fullName || 'Not provided';
+                document.getElementById('userPhone').textContent = userData.phoneNumber || 'Not provided';
+                document.getElementById('userEmail').textContent = userData.email || 'Not provided';
+                document.getElementById('userAddress').textContent = userData.address || 'Not provided';
+                
+                // Update voucher details from global variables
+                document.getElementById('bottlesRecycled').textContent = bottleCount;
+                document.getElementById('plasticType').textContent = plasticType;
+                document.getElementById('voucherTotal').textContent = `Total: ₦${totalValue}`;
+                document.getElementById('voucherId').textContent = 'RTW-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
+                
+                // Set current date
+                const now = new Date();
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                document.getElementById('voucherDate').textContent = now.toLocaleDateString('en-US', options);
+                
+                // Calculate environmental impact
+                const co2Saved = (bottleCount * 0.15).toFixed(2);
+                const energySaved = (bottleCount * 5).toFixed(0);
+                
+                document.getElementById('co2Saved').textContent = `CO₂ Saved: ${co2Saved} kg`;
+                document.getElementById('energySaved').textContent = `Energy Saved: ${energySaved} kWh`;
+                
+                // Update rewards points
+                document.getElementById('rewardsPoints').textContent = `+${bottleCount * 10} Points`;
+            }
+        }
+
         // Update preview stats
         function updatePreviewStats() {
             document.getElementById('co2Preview').textContent = (bottleCount * 0.15).toFixed(2);
@@ -1280,7 +1282,7 @@ function generateVoucher() {
                 return false;
             }
             
-            // Save user data
+            // Save user data - FIXED: Ensure userData is properly populated
             userData = {
                 fullName: fullName,
                 phoneNumber: phoneNumber,
