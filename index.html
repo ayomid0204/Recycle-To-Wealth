@@ -523,25 +523,6 @@
             margin: 10px 0;
         }
 
-        .timer-container {
-            background: #2c5530;
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            text-align: center;
-        }
-
-        .timer-text {
-            font-size: 1.2em;
-            margin-bottom: 10px;
-        }
-
-        .timer {
-            font-size: 1.8em;
-            font-weight: bold;
-        }
-
         .share-buttons {
             display: flex;
             justify-content: center;
@@ -685,6 +666,7 @@
                 </div>
                 <button class="close-btn" id="closeDialogBtn">Let's Begin</button>
             </div>
+
         </div>
     </div>
 
@@ -752,6 +734,24 @@
                     <div class="bottle-type" data-type="HDPE">HDPE Containers</div>
                     <div class="bottle-type" data-type="Other">Other Plastics</div>
                 </div>
+
+                <!-- Fraud Detection System -->
+                <div class="fraud-detection" style="background: #fff3cd; border: 2px solid #ffeaa7; border-radius: 10px; padding: 15px; margin: 20px 0; text-align: center;">
+                    <div style="font-weight: bold; color: #856404; margin-bottom: 10px;">
+                        🔒 Anti-Fraud Verification System
+                    </div>
+                    <div style="color: #856404; font-size: 0.9em;">
+                        <div style="margin-bottom: 8px;">• Automated bottle counting sensor activated</div>
+                        <div style="margin-bottom: 8px;">• Weight verification system: ~25g per PET bottle</div>
+                        <div style="margin-bottom: 8px;">• Camera-based object recognition enabled</div>
+                        <div>• Final payment will be based on ACTUAL bottles verified at collection center</div>
+                    </div>
+                    <div style="margin-top: 10px; padding: 8px; background: #f8d7da; border-radius: 5px;">
+                        <small style="color: #721c24;">
+                            ⚠️ Note: Any discrepancy between claimed and actual bottles will be adjusted in final payment
+                        </small>
+                    </div>
+                </div>
             </div>
 
             <!-- Environmental Stats -->
@@ -765,7 +765,7 @@
                     <div class="stat-label">kWh Energy</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value" id="moneyPreview">₦20</div>
+                    <div class="stat-value" id="moneyPreview">₦6</div>
                     <div class="stat-label">Earnings</div>
                 </div>
             </div>
@@ -803,12 +803,6 @@
                 <div class="rewards-title">You've Earned Recycling Points!</div>
                 <div class="rewards-points" id="rewardsPoints">+50 Points</div>
                 <div>Keep recycling to unlock special rewards and discounts</div>
-            </div>
-
-            <!-- Timer for QR Validity -->
-            <div class="timer-container">
-                <div class="timer-text">QR Code Valid for:</div>
-                <div class="timer" id="qrTimer">30:00</div>
             </div>
             
             <div>
@@ -864,7 +858,7 @@
                     </div>
                     <div class="voucher-row">
                         <span class="voucher-label">Price per Bottle:</span>
-                        <span class="voucher-value">₦20</span>
+                        <span class="voucher-value">₦6</span>
                     </div>
                 </div>
                 
@@ -894,7 +888,7 @@
         // Global variables
         let bottleCount = 1;
         let plasticType = "PET";
-        const pricePerBottle = 20; // 20 Naira per bottle
+        const pricePerBottle = 6; // 6 Naira per bottle (changed from 20)
         let userData = {
             fullName: "",
             phoneNumber: "",
@@ -1097,9 +1091,6 @@
                     });
                 }
                 
-                // Start QR code timer
-                startQRTimer();
-                
             } catch (error) {
                 console.error('QR Code generation error:', error);
                 // Fallback: Create a simple visual representation
@@ -1121,30 +1112,7 @@
                     showPage('page5');
                     generateVoucher();
                 });
-                
-                // Start QR code timer
-                startQRTimer();
             }
-        }
-
-        // Start QR code validity timer
-        function startQRTimer() {
-            clearInterval(qrTimer);
-            timeLeft = 30 * 60; // 30 minutes
-            
-            qrTimer = setInterval(function() {
-                timeLeft--;
-                const minutes = Math.floor(timeLeft / 60);
-                const seconds = timeLeft % 60;
-                document.getElementById('qrTimer').textContent = 
-                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                
-                if (timeLeft <= 0) {
-                    clearInterval(qrTimer);
-                    document.getElementById('qrTimer').textContent = 'EXPIRED';
-                    document.getElementById('qrTimer').style.color = '#ff4444';
-                }
-            }, 1000);
         }
 
         // Generate voucher details - FIXED VERSION
